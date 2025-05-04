@@ -2,37 +2,47 @@
 
 set -e
 
-CLUSTER_NAME="eks-fargate-cluster"
+# Variables
+CLUSTER_NAME="fargate-cluster"
 REGION="eu-west-1"
-NAMESPACE="fargate-apps"
+FARGATE_PROFILE_NAME="fp-default"
+NAMESPACE="fargate-ns"
 
-echo "Checking for required tools..."
-
-command -v aws >/dev/null 2>&1 || { echo >&2 "AWS CLI not installed. Aborting."; exit 1; }
-command -v eksctl >/dev/null 2>&1 || { echo >&2 "eksctl not installed. Aborting."; exit 1; }
-command -v kubectl >/dev/null 2>&1 || { echo >&2 "kubectl not installed. Aborting."; exit 1; }
-
-echo "Creating EKS cluster with Fargate profile..."
-
+# 1. Create EKS Cluster with Fargate profile
 eksctl create cluster \
   --name $CLUSTER_NAME \
   --region $REGION \
   --fargate
 
-echo "Updating kubeconfig..."
-
-aws eks update-kubeconfig --region $REGION --name $CLUSTER_NAME
-
-echo "Creating namespace for Fargate workloads: $NAMESPACE"
-
-kubectl create namespace $NAMESPACE
-
-echo "Creating Fargate profile for namespace $NAMESPACE..."
-
+# 2. Create a Fargate profile (if not created above)
 eksctl create fargateprofile \
   --cluster $CLUSTER_NAME \
   --region $REGION \
-  --name fargate-profile \
+  --name $FARGATE_PROFILE_NAME \
   --namespace $NAMESPACE
 
-echo "EKS on Fargate setup complete."
+# 3. Update kubeconfig
+aws eks --region $REGION update-kubeconfig --name $CLUSTER_NAME
+
+# 4. Create namespace for Fargate workloads
+kubectl create namespace $NAMESPACE
+
+# 5. Label namespace for Fargate (if necessary)
+kubectl label namespace $NAMESPACE \
+  eks.amazonaws.com/fargate-profile=$FARGATE_PROFILE_NAME
+
+# 6. Install Helm (should already be done earlier)
+helm version
+
+# 7. Add a Helm repo (e.g., for CloudWatch agent or custom pod agent)
+helm repo add aws-cloudwatch https://aws.github.io/eks-charts
+helm repo update
+
+# 8. Install CloudWatch Container Insights Agent
+helm upgrade --install cloudwatch-agent aws-cloudwatch/aws-cloudwatch-metrics \
+  --namespace $NAMESPACE \
+  --set awsRegion=$REGION \
+  --set clusterName=$CLUSTER_NAME
+
+# Optional: Deploy a sample app to test
+kubectl apply -n $NAMESPACE -f https://k8s.io/examples/application/deployment.yaml

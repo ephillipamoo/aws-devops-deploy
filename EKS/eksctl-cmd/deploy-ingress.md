@@ -1,5 +1,3 @@
-# 2048 App
-
 ## Create Fargate profile
 
 ```

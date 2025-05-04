@@ -6,9 +6,11 @@ Please follow the prerequisites doc before this.
 
 ## Make sure and very that you are using the correct aws keys for deployment as each user SHOULD be and have specific rights for API deployment
 
-View Access Key: aws configure get aws_access_key_id 
+## View Access Key: 
+        aws configure get aws_access_key_id 
 
-View Secret Key: aws configure get aws_secret_access_key
+## View Secret Key: 
+        aws configure get aws_secret_access_key
 
 ```
 eksctl create cluster --name demo-cluster --region us-east-1 --fargate
@@ -40,5 +42,4 @@ Workloads are event-driven and sporadic (Fargate scales automatically and you pa
 Your applications can run in a stateless matter (Fargate does not support persistent local storage after the the container is stopped)
 You need quick deployment cycles, such as for testing and deploying applications
 You are running microservices architecture (it allows each service to be packaged into its container, scaled independently and managed centrally).
-
 
