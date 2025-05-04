@@ -13,13 +13,13 @@ Please follow the prerequisites doc before this.
         aws configure get aws_secret_access_key
 
 ```
-eksctl create cluster --name demo-cluster --region eu-west-1 --fargate
+eksctl create cluster --name demo-eks-cluster --region eu-west-1 --fargate
 ```
 
 ## Delete the cluster
 
 ```
-eksctl delete cluster --name demo-cluster --region eu-west-1
+eksctl delete cluster --name demo-eks-cluster --region eu-west-1
 ```
 
 

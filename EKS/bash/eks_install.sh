@@ -3,7 +3,7 @@
 set -e
 
 # Variables
-CLUSTER_NAME="fargate-cluster"
+CLUSTER_NAME="demo-eks-cluster"
 REGION="eu-west-1"
 FARGATE_PROFILE_NAME="fp-default"
 NAMESPACE="fargate-ns"
